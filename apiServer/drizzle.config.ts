@@ -9,4 +9,7 @@ export default defineConfig({
     dbCredentials: {
         url: envVariables.databaseUrl,
     },
+    verbose: true,
+    strict: true,
 });
+

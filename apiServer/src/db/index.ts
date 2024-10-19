@@ -3,4 +3,4 @@ import { envVariables } from '../config/envVariables';
 
 const db = drizzle(envVariables.databaseUrl!);
 
-export {db}
+export { db }
