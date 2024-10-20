@@ -28,12 +28,11 @@ const addPublicKey = asyncHandler(async(req: Request, res: Response) => {
                 return res.status(400).json(new ApiError(400, PUBLICKEYTAKEN, []))
             }
         }
-        const newPublicKey = await db.insert(AccountTable).values({
+        await db.insert(AccountTable).values({
             publicKey: parsedData.data.publicKey,
             isVerified: false,
             userId: req.user.id
         });
-        console.log({newPublicKey});
         return res.status(200).json(new ApiResponse(200, PUBLICKEYADDED, {}));
     } catch(err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));

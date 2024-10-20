@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@noble/curves':
+        specifier: ^1.6.0
+        version: 1.6.0
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -490,6 +493,14 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@noble/curves@1.6.0':
+    resolution: {integrity: sha512-TlaHRXDehJuRNR9TfZDNQ45mMEd5dwUwmicsafcIX4SsNiqnCHKjE/1alYPd/lDRVhxdhUAlv8uEhMCI5zjIJQ==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@1.5.0':
+    resolution: {integrity: sha512-1j6kQFb7QRru7eKN3ZDvRcP13rugwdxZqCjbiAVZfIJwgj2A65UmT4TgARXGlXgnRkORLTDTrO19ZErt7+QXgA==}
+    engines: {node: ^14.21.3 || >=16}
 
   '@types/bcryptjs@2.4.6':
     resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
@@ -1379,6 +1390,12 @@ snapshots:
 
   '@esbuild/win32-x64@0.23.1':
     optional: true
+
+  '@noble/curves@1.6.0':
+    dependencies:
+      '@noble/hashes': 1.5.0
+
+  '@noble/hashes@1.5.0': {}
 
   '@types/bcryptjs@2.4.6': {}
 

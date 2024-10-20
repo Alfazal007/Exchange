@@ -32,6 +32,9 @@ app.use(cookieParser());
 import { userRouter } from "./routes/routes.user";
 app.use("/api/v1/user", userRouter);
 
+import { publicKeyRouter } from "./routes/routes.publicKey";
+app.use("/api/v1/account", publicKeyRouter);
+
 export {
     app
 }
