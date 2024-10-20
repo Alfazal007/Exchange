@@ -1,0 +1,10 @@
+export const NOREQUESTBODY = "No request body provided";
+export const ZODERRORS = "Zod errors, invalid formats of request body"
+export const DATABASEERRORS = "Issue talking to the database";
+export const DUPLICATEUSERNAME = "Choose a different username"
+export const DUPLICATEEMAIL = "Choose a different email"
+export const SUCCESSFUL = "Successfully performed the task"
+export const NOTFOUND = "Not found"
+export const INCORRECTPASSWORD = "Password is not correct"
+export const LOGINSUCCESSFUL = "Login Successful"
+export const UNAUTHORIZED = "Unauthorized, Relogin"

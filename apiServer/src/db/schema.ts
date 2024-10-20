@@ -5,8 +5,7 @@ export const UserTable = pgTable("User", {
     id: uuid("id").defaultRandom().primaryKey(),
     email: varchar("email", {length: 255}).notNull().unique(),
     username: varchar("username", {length: 40}).notNull().unique(),
-    password: varchar("password", {length: 20}).notNull(),
-    refreshToken: varchar("refresh_token", { length: 255 }).default(""),
+    password: varchar("password", {length: 255}).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

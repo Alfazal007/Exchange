@@ -15,6 +15,20 @@
       "when": 1729346575991,
       "tag": "0001_majestic_mariko_yashida",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1729416157020,
+      "tag": "0002_aromatic_tomas",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1729417546051,
+      "tag": "0003_unknown_northstar",
+      "breakpoints": true
     }
   ]
 }
