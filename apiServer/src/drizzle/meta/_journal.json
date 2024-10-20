@@ -29,6 +29,13 @@
       "when": 1729417546051,
       "tag": "0003_unknown_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1729439590983,
+      "tag": "0004_fantastic_nighthawk",
+      "breakpoints": true
     }
   ]
 }

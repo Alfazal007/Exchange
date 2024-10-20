@@ -9,6 +9,7 @@ const userRouter = Router();
 userRouter.route("/create").post(createUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/current-user").get(authMiddleware, getCurrentUser);
+userRouter.route("/add-public-key").get(authMiddleware, getCurrentUser);
 
 export {
     userRouter

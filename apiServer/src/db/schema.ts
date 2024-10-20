@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import {  pgTable, uuid, varchar, timestamp, primaryKey } from "drizzle-orm/pg-core";
+import {  pgTable, uuid, varchar, timestamp, primaryKey, boolean } from "drizzle-orm/pg-core";
 
 export const UserTable = pgTable("User", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -10,17 +10,13 @@ export const UserTable = pgTable("User", {
 });
 
 export const AccountTable = pgTable("Account", {
+    id: uuid("id").defaultRandom().primaryKey(),
     publicKey: varchar("public_key", {length: 255}).unique().notNull(),
-    userId: uuid("user_id").notNull().references(() => UserTable.id, {onDelete: "cascade"})
-}, table => {
-        return {
-            pk: primaryKey({columns: [table.userId, table.publicKey]})
-        }
-    }
-);
+    isVerified: boolean("is_verified").default(false),
+    userId: uuid("user_id").notNull().references(() => UserTable.id, {onDelete: "cascade"}),
+});
 
-
-// relations
+// relationsPUBLICKEYNOTVERIFIED
 export const UserTableRelations = relations(UserTable, ({ many }) => {
     return {
         accounts: many(AccountTable)
