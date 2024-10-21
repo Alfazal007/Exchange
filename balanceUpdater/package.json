@@ -1,0 +1,26 @@
+{
+  "name": "balanceUpdater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@solana/web3.js": "^1.95.4",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.35.2",
+    "pg": "^8.13.0",
+    "redis": "^4.7.0",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.10",
+    "@types/redis": "^4.0.11",
+    "drizzle-kit": "^0.26.2",
+    "tsx": "^4.19.1"
+  }
+}
