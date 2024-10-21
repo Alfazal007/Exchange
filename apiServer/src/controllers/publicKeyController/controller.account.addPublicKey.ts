@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { ApiResponse } from "../../utils/ApiResponse";
 
 const addPublicKey = asyncHandler(async(req: Request, res: Response) => {
+    console.log(`POST ADDPUBLICKEY ${req.ip}`)
     if(!req.body) {
         return res.status(500).json(new ApiError(400, NOREQUESTBODY, []));
     }

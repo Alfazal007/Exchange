@@ -12,3 +12,4 @@ export const PUBLICKEYNOTVERIFIED = "This public key is already registered but n
 export const PUBLICKEYTAKEN = "This public key is already registered and verified"
 export const PUBLICKEYADDED = "New public key added to the database, now verify it"
 export const PUBLICKEYVERIFICATIONFAILED = "Invalid signature"
+export const ALREADYVERIFIED = "Already verified"
