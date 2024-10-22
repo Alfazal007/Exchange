@@ -3,8 +3,8 @@ import { accountPublicKey } from '../constants/constants';
 import { client } from '../redis';
 import { db } from '../db';
 import { LastTransactionUsed } from '../db/schema';
+import { connection } from '..';
 
-const connection = new Connection(clusterApiUrl('devnet'));
 
 export async function findSendersForAccount(): Promise<ConfirmedSignatureInfo[]> {
     try {

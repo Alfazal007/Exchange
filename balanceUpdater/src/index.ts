@@ -1,8 +1,22 @@
-import { extractData } from "./helpers/fetchDataFromTransaction";
+import { Connection } from "@solana/web3.js";
+import { findSendersForAccount } from "./helpers/findSendersOfData";
+import { extractAndUpdateData } from "./helpers/fetchDataFromTransaction";
 
-extractData("4BdNHsnY1LqBPWwcqShD4dR7oockYriwSGS3W6w428GkFd8sodWV1naDmvGGSUtoVNxziRaEyR2hmjKHgLQ5EAg2")
-    .then(() => console.log('Done'))
-    .catch(err => console.error('Error:', err));
+export const connection = new Connection('https://solana-devnet.g.alchemy.com/v2/qGSm5zbza7CiMLE0uAwtbqeM4drwKOgD');
+
+async function main() {
+    try {
+        let signaturesOfTransactions = await findSendersForAccount();
+        if(signaturesOfTransactions.length == 0) {
+            return;
+        }
+        await extractAndUpdateData(signaturesOfTransactions);
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+main();
 
 // from fat to normal sol
 // 4BdNHsnY1LqBPWwcqShD4dR7oockYriwSGS3W6w428GkFd8sodWV1naDmvGGSUtoVNxziRaEyR2hmjKHgLQ5EAg2
