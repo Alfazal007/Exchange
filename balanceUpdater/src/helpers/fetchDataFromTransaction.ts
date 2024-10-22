@@ -16,11 +16,9 @@ export const extractAndUpdateData = async (signature: ConfirmedSignatureInfo[]) 
             continue;
         }
         const parsedData = transaction.transaction.message.instructions[2] as ParsedInstruction;
-        console.log(parsedData.parsed);
         if(parsedData.parsed.type == "transfer") {
             // update solana balance here
             if(parsedData.parsed.info.destination == accountPublicKey) {
-                console.log("I received the solana so do something");
                 try {
                     const sentAmount = parsedData.parsed.info.lamports;
                     const userAccountTokenBalance = await db.select().from(AccountTable).leftJoin(
@@ -29,16 +27,17 @@ export const extractAndUpdateData = async (signature: ConfirmedSignatureInfo[]) 
                     ).where(eq(
                         AccountTable.publicKey, parsedData.parsed.info.source
                     ));
-                    if(userAccountTokenBalance.length == 0) {
+                    if(userAccountTokenBalance.length == 0 || !userAccountTokenBalance[0].UserBalance) {
                         continue;
                     } else {
                         // update db
+                        const newBalance: BigInt = BigInt(sentAmount) + BigInt(userAccountTokenBalance[0].UserBalance.solanaBalanceLamports);
                         await db.update(UserTokenBalance).set({
-                            solanaBalanceLamports: userAccountTokenBalance[0].UserBalance?.solanaBalanceLamports + sentAmount
-                        });
+                            solanaBalanceLamports: newBalance.toString()
+                        }).where(eq(UserTokenBalance.id, userAccountTokenBalance[0].UserBalance.id));
                         // update redis
                         await client.set(userAccountTokenBalance[0].Account.userId + "solana",
-                            userAccountTokenBalance[0].UserBalance?.solanaBalanceLamports + sentAmount);
+                            newBalance.toString());
                     }
                 } catch(err) {
                     console.log(err);
@@ -53,7 +52,6 @@ export const extractAndUpdateData = async (signature: ConfirmedSignatureInfo[]) 
             // update token mint balance here
             if(parsedData.parsed.info.destination == tokenWalletAddress && parsedData.parsed.info.mint == mintAddress) {
                 // i received some tokens update here
-                console.log("I received the tokens so do something");
                 try {
                     const sentAmount = parsedData.parsed.info.tokenAmount.amount;
                     const userAccountTokenBalance = await db.select().from(AccountTable).leftJoin(
@@ -62,22 +60,22 @@ export const extractAndUpdateData = async (signature: ConfirmedSignatureInfo[]) 
                     ).where(eq(
                         AccountTable.publicKey, parsedData.parsed.info.signers[0]
                     ));
-                    if(userAccountTokenBalance.length == 0) {
+                    if(userAccountTokenBalance.length == 0 || !userAccountTokenBalance[0].UserBalance) {
                         continue;
                     } else {
                         // update db
+                        const newBalance: BigInt = BigInt(sentAmount) + BigInt(userAccountTokenBalance[0].UserBalance.tokenBalanceLamports);
                         await db.update(UserTokenBalance).set({
-                            tokenBalanceLamports: userAccountTokenBalance[0].UserBalance?.tokenBalanceLamports + sentAmount
-                        });
+                            tokenBalanceLamports: newBalance.toString()
+                        }).where(eq(UserTokenBalance.id, userAccountTokenBalance[0].UserBalance.id));
                         // update redis
-                        await client.set(userAccountTokenBalance[0].Account.userId + "token",
-                            userAccountTokenBalance[0].UserBalance?.tokenBalanceLamports + sentAmount);
+                        await client.set(userAccountTokenBalance[0].Account.userId + "token", newBalance.toString());
                     }
                 } catch(err) {
                     console.log(err);
                     await client.SET("transactionUsedLast", errorFreeTransactions[i]);
                     await db.update(LastTransactionUsed).set({
-                        lastTransactionUsed: errorFreeTransactions[i]
+                        lastTransactionUsedToken: errorFreeTransactions[i]
                     });
                     process.exit(1);
                 }

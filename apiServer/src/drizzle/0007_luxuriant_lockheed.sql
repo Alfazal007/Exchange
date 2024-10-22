@@ -1,0 +1,1 @@
+ALTER TABLE "LastBlockHash" ADD COLUMN "Last_Used_Transaction_Token" varchar(255) NOT NULL;

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import {  pgTable, uuid, varchar, timestamp, primaryKey, boolean, jsonb } from "drizzle-orm/pg-core";
+import {  pgTable, uuid, varchar, timestamp, bigint, boolean, integer } from "drizzle-orm/pg-core";
 
 export const UserTable = pgTable("User", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -20,7 +20,13 @@ export const UserTokenBalance = pgTable("UserBalance", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull().references(()=> UserTable.id, { onDelete: "cascade"}).unique(),
     accountId: uuid("account_id").notNull().references(() => AccountTable.id, { onDelete: "cascade"}).unique(),
-    balance: jsonb("balance").default({})
+    solanaBalanceLamports: varchar("solana_lamports").default("0").notNull(),
+    tokenBalanceLamports: varchar("token_balance").default("0").notNull()
+});
+
+export const LastTransactionUsed = pgTable("LastBlockHash", {
+    lastTransactionUsed: varchar("Last_Used_Transaction", {length: 255}).notNull(),
+    lastTransactionUsedToken: varchar("Last_Used_Transaction_Token", {length: 255}).notNull(),
 });
 
 // relations

@@ -4,7 +4,7 @@ import { ApiError } from "../../utils/ApiErrors";
 import { ALREADYVERIFIED, DATABASEERRORS, NOREQUESTBODY, NOTFOUND, PUBLICKEYVERIFICATIONFAILED, SUCCESSFUL, ZODERRORS } from "../../constants/ReturnTypes";
 import { verifyPublicKeyType } from "../../zodTypes/account.verifyPublicKeyType";
 import { db } from "../../db";
-import { AccountTable } from "../../db/schema";
+import { AccountTable, UserTokenBalance } from "../../db/schema";
 import { and, eq } from "drizzle-orm";
 import { ed25519 } from '@noble/curves/ed25519';
 import { ApiResponse } from "../../utils/ApiResponse";
@@ -47,6 +47,10 @@ const verifyPublicKey = asyncHandler(async(req: Request, res: Response) => {
         }).where(and(
             eq(AccountTable.publicKey, parsedData.data.publicKey),
             eq(AccountTable.userId, req.user.id)));
+        await db.insert(UserTokenBalance).values({
+            userId: req.user.id,
+            accountId: publicKeyAndUserId[0].id
+        });
         return res.status(200).json(new ApiResponse(200, SUCCESSFUL, []));
     } catch(err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
