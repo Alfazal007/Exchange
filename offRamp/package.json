@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.4",
+    "bs58": "^6.0.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.35.3",
     "pg": "^8.13.0",
@@ -18,10 +20,12 @@
     "typescript": "^5.6.3"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.4",
     "@types/node": "^22.7.8",
     "@types/pg": "^8.11.10",
     "@types/redis": "^4.0.11",
     "drizzle-kit": "^0.26.2",
+    "spl-token": "link:@types/@solana/spl-token",
     "tsx": "^4.19.1",
     "web3.js": "link:@types/@solana/web3.js"
   }

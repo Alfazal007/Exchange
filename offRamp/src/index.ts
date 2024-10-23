@@ -1,5 +1,9 @@
+import { Connection } from "@solana/web3.js";
 import { processOfframp } from "./processOffRamp";
 import { client } from "./redis";
+import { envVariables } from "./envVariables";
+
+export const connection = new Connection(envVariables.connectionUrl);
 
 async function main() {
     while(true) {
