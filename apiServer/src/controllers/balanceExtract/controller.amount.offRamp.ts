@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler";
 import { ApiError } from "../../utils/ApiErrors";
-import { DATABASEERRORS, NOREQUESTBODY, NOTFOUND, OFFRAMPSUCCESS, SOLANANOTENOUGH, ZEROBALANCE, ZODERRORS } from "../../constants/ReturnTypes";
+import { DATABASEERRORS, NOREQUESTBODY, NOTENOUGHTOKENS, NOTFOUND, OFFRAMPSUCCESS, SOLANANOTENOUGH, UNAUTHORIZED, ZEROBALANCE, ZODERRORS } from "../../constants/ReturnTypes";
 import { offRampMoneyType } from "../../zodTypes/offRamp.removeMoney";
 import { client } from "../../redis/redis";
 import { db } from "../../db";
@@ -23,7 +23,7 @@ const offRamp = asyncHandler(async(req: Request, res: Response) => {
             await client.connect();
         }
         let userBalance = await client.get(req.user.id + parsedData.data.tokenType);
-        let solanaBalance = "0";
+        let solanaBalance = await client.get(req.user.id + "solana");
         if(!userBalance) {
             const userFromTheDatabase = await db.select().from(UserTokenBalance).where(eq(
                 UserTokenBalance.userId, req.user.id
@@ -38,11 +38,17 @@ const offRamp = asyncHandler(async(req: Request, res: Response) => {
             }
             solanaBalance = userFromTheDatabase[0].solanaBalanceLamports;
         }
+        if(!userBalance || !solanaBalance) {
+            return res.status(401).json(new ApiError(401, UNAUTHORIZED, []));
+        }
         if(userBalance == "0") {
             return res.status(400).json(new ApiError(400, ZEROBALANCE, []));
         }
         if(solanaBalance == "0") {
             return res.status(400).json(new ApiError(400, SOLANANOTENOUGH, []))
+        }
+        if(BigInt(userBalance) < BigInt(parsedData.data.lamportsToRetreive)) {
+            return res.status(400).json(new ApiError(400, NOTENOUGHTOKENS, []));
         }
         const offRampData = {
             userId: req.user.id,

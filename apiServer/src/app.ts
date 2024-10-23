@@ -35,6 +35,9 @@ app.use("/api/v1/user", userRouter);
 import { publicKeyRouter } from "./routes/routes.publicKey";
 app.use("/api/v1/account", publicKeyRouter);
 
+import { offrampRouter } from "./routes/routes.offramp";
+app.use("/api/v1/offramp", offrampRouter);
+
 export {
     app
 }

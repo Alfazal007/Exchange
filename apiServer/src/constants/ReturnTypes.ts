@@ -16,3 +16,4 @@ export const ALREADYVERIFIED = "Already verified";
 export const ZEROBALANCE = "Balance is 0";
 export const SOLANANOTENOUGH = "Not enough solana to pay for gas put in some solana";
 export const OFFRAMPSUCCESS = "Request has been initiated, you will be notified via email";
+export const NOTENOUGHTOKENS = "Not enough tokens";
