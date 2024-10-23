@@ -39,20 +39,24 @@ export async function findSendersForAccount(): Promise<ConfirmedSignatureInfo[]>
             until: lastUsedTransactionToken,
         });
         let appendedTransactions = [...signatures, ...signaturesOfToken];
-        if(signatures.length == 0) {
+        if(appendedTransactions.length == 0) {
             return [];
         }
-        await client.SET("transactionUsedLast", signatures[0].signature);
-        await db.update(LastTransactionUsed).set({
-            lastTransactionUsed: signatures[0].signature
-        });
-        await client.SET("transactionUsedLastToken", signaturesOfToken[0].signature);
-        await db.update(LastTransactionUsed).set({
-            lastTransactionUsedToken: signaturesOfToken[0].signature
-        });
+        if(signatures.length > 0) {
+            await client.SET("transactionUsedLast", signatures[0].signature);
+            await db.update(LastTransactionUsed).set({
+                lastTransactionUsed: signatures[0].signature
+            });
+        }
+        if(signaturesOfToken.length > 0) {
+            await client.SET("transactionUsedLastToken", signaturesOfToken[0].signature);
+            await db.update(LastTransactionUsed).set({
+                lastTransactionUsedToken: signaturesOfToken[0].signature
+            });
+        }
         return appendedTransactions;
     } catch(err) {
-        console.log("There was an issue with the database");
+        console.log("There was an issue with the database", err);
         return [];
     }
 }
