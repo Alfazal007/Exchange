@@ -38,6 +38,9 @@ app.use("/api/v1/account", publicKeyRouter);
 import { offrampRouter } from "./routes/routes.offramp";
 app.use("/api/v1/offramp", offrampRouter);
 
+import { orderBookRouter } from "./routes/routes.orderbook";
+app.use("/api/v1/order", orderBookRouter);
+
 export {
     app
 }

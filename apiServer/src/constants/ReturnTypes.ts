@@ -17,3 +17,6 @@ export const ZEROBALANCE = "Balance is 0";
 export const SOLANANOTENOUGH = "Not enough solana to pay for gas put in some solana";
 export const OFFRAMPSUCCESS = "Request has been initiated, you will be notified via email";
 export const NOTENOUGHTOKENS = "Not enough tokens";
+export const ORDERERRORS = "Error while creating the order";
+export const ORDERSUCCESSFUL = "The order was successfully placed";
+export const ORDERDELETED = "The order was successfully deleted";

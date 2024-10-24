@@ -9,13 +9,13 @@ import { eq, or } from "drizzle-orm";
 import { ApiResponse } from "../../utils/ApiResponse";
 import { hashPassword } from "../../helpers/HashPassword";
 
-const createUser = asyncHandler(async(req: Request, res: Response) => {
+const createUser = asyncHandler(async (req: Request, res: Response) => {
     console.log(`POST CREATEUSER ${req.ip}`)
-    if(!req.body) {
+    if (!req.body) {
         return res.status(400).json(new ApiError(400, NOREQUESTBODY, []));
     }
     const parsedData = createUserType.safeParse(req.body);
-    if(!parsedData.success) {
+    if (!parsedData.success) {
         const errors = parsedData.error.errors.map((err) => err.message);
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
@@ -24,12 +24,12 @@ const createUser = asyncHandler(async(req: Request, res: Response) => {
             eq(UserTable.email, parsedData.data.email),
             eq(UserTable.username, parsedData.data.username)
         )).limit(1);
-        if(userWithSimilarCredentials.length > 0) {
+        if (userWithSimilarCredentials.length > 0) {
             const sameCredsUser = userWithSimilarCredentials[0];
-            if(sameCredsUser.username == parsedData.data.username) {
+            if (sameCredsUser.username == parsedData.data.username) {
                 return res.status(400).json(new ApiError(400, DUPLICATEUSERNAME, []));
             }
-            if(sameCredsUser.email == parsedData.data.email) {
+            if (sameCredsUser.email == parsedData.data.email) {
                 return res.status(400).json(new ApiError(400, DUPLICATEEMAIL, []));
             }
         }
@@ -45,7 +45,7 @@ const createUser = asyncHandler(async(req: Request, res: Response) => {
             email: UserTable.email
         });
         return res.status(201).json(new ApiResponse(201, SUCCESSFUL, createdUser));
-    } catch(err) {
+    } catch (err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
     }
 });
