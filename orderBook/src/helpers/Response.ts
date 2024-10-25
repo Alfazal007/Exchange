@@ -5,4 +5,7 @@ interface CreateOrderResponse {
     balanceNotEnough: boolean,
     success: boolean
 }
-interface DeleteOrderResponse { }
+
+interface DeleteOrderResponse {
+    success: boolean
+}

@@ -11,6 +11,7 @@ interface CreateOrderRequest {
 
 interface DeleteOrderRequest {
     userId: string;
+    market: "SOL_TOKEN";
     orderId: string;
-    orderType: string;
+    kind: "buy" | "ask"
 }
