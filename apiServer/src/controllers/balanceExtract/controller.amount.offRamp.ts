@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler";
 import { ApiError } from "../../utils/ApiErrors";
-import { DATABASEERRORS, NOREQUESTBODY, NOTENOUGHTOKENS, NOTFOUND, OFFRAMPSUCCESS, SOLANANOTENOUGH, UNAUTHORIZED, ZEROBALANCE, ZODERRORS } from "../../constants/ReturnTypes";
+import { DATABASEERRORS, NOREQUESTBODY, NOTENOUGHTOKENS, NOTFOUND, OFFRAMPSUCCESS, ORDERPRESENTERROR, SOLANANOTENOUGH, UNAUTHORIZED, ZEROBALANCE, ZODERRORS } from "../../constants/ReturnTypes";
 import { offRampMoneyType } from "../../zodTypes/offRamp.removeMoney";
 import { client } from "../../redis/redis";
 import { db } from "../../db";
@@ -21,6 +21,10 @@ const offRamp = asyncHandler(async (req: Request, res: Response) => {
     try {
         if (!client.isOpen) {
             await client.connect();
+        }
+        let isOrderPresentOnToken = await client.get("orderPresent" + parsedData.data.tokenType + req.user.id);
+        if (isOrderPresentOnToken && isOrderPresentOnToken != "0") {
+            return res.status(400).json(new ApiError(400, ORDERPRESENTERROR, []));
         }
         let userBalance = await client.get(req.user.id + parsedData.data.tokenType);
         let solanaBalance = await client.get(req.user.id + "solana");

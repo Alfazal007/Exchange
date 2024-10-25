@@ -5,7 +5,7 @@ class RedisManager {
     private publisher: RedisClientType;
     private queue: RedisClientType;
 
-    constructor() {
+    private constructor() {
         this.queue = createClient();
         this.queue.connect();
         this.publisher = createClient();
@@ -20,7 +20,6 @@ class RedisManager {
     }
 
     public publishAndWaitForMessage(data: string, idToSubscribe: string) {
-        console.log({ idToSubscribe });
         return new Promise<string>((resolve) => {
             this.publisher.subscribe(idToSubscribe, (message) => {
                 this.publisher.unsubscribe(idToSubscribe);
