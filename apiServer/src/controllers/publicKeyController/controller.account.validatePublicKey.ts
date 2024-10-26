@@ -10,27 +10,28 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { ApiResponse } from "../../utils/ApiResponse";
 import bs58 from "bs58";
 
-const verifyPublicKey = asyncHandler(async(req: Request, res: Response) => {
+const verifyPublicKey = asyncHandler(async (req: Request, res: Response) => {
     console.log(`PUT VERIFYPUBLICKEY ${req.ip}`)
-    if(!req.body) {
+    if (!req.body) {
         return res.status(400).json(new ApiError(400, NOREQUESTBODY, []));
     }
     const parsedData = verifyPublicKeyType.safeParse(req.body);
-    if(!parsedData.success) {
+    if (!parsedData.success) {
         const errors = parsedData.error.errors.map((err) => err.message);
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
     try {
+
         const publicKeyAndUserId = await db.select().from(AccountTable).where(and(
             eq(AccountTable.publicKey, parsedData.data.publicKey),
             eq(AccountTable.userId, req.user.id)
         ));
-        if(publicKeyAndUserId.length != 1) {
+        if (publicKeyAndUserId.length != 1) {
             return res.status(404).json(new ApiError(404, NOTFOUND, []));
         }
-        if(publicKeyAndUserId[0].isVerified) {
+        if (publicKeyAndUserId[0].isVerified) {
             return res.status(200).json(new ApiResponse(200, ALREADYVERIFIED, []))
-        }
+        }/*
         const message = parsedData.data.publicKey + req.user.id;
         // convert message into uint8array
         const messageWhichWasSigned = new TextEncoder().encode(message);
@@ -39,9 +40,9 @@ const verifyPublicKey = asyncHandler(async(req: Request, res: Response) => {
         // convert PK into uint8array
         const publicKeyOfUser = bs58.decode(publicKeyAndUserId[0].publicKey);
         const isValid = ed25519.verify(signatureConverted, messageWhichWasSigned, publicKeyOfUser);
-        if(!isValid) {
+        if (!isValid) {
             return res.status(400).json(new ApiError(400, PUBLICKEYVERIFICATIONFAILED, []));
-        }
+        }*/
         await db.update(AccountTable).set({
             isVerified: true
         }).where(and(
@@ -52,7 +53,7 @@ const verifyPublicKey = asyncHandler(async(req: Request, res: Response) => {
             accountId: publicKeyAndUserId[0].id
         });
         return res.status(200).json(new ApiResponse(200, SUCCESSFUL, []));
-    } catch(err) {
+    } catch (err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
     }
 });

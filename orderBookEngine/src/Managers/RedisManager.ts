@@ -3,7 +3,7 @@ import { createClient, RedisClientType } from "redis";
 export class RedisManager {
     private static instance: RedisManager;
     public client: RedisClientType;
-    constructor() {
+    private constructor() {
         this.client = createClient();
     }
 

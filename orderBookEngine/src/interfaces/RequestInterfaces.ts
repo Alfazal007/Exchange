@@ -1,4 +1,4 @@
-interface CreateOrderRequest {
+export interface CreateOrderRequest {
     orderId: string;
     userId: string;
     orderType: string;
@@ -9,10 +9,9 @@ interface CreateOrderRequest {
     quantity: string;
 }
 
-interface DeleteOrderRequest {
+export interface DeleteOrderRequest {
     userId: string;
     market: "SOL_TOKEN";
     orderId: string;
     kind: "buy" | "ask"
 }
-

@@ -1,0 +1,19 @@
+{
+  "name": "dbUpdater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc -b && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "redis": "^4.7.0",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/redis": "^4.0.11"
+  }
+}

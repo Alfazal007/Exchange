@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { RedisManager } from "../../redis/SubscriberRedis";
 import { ApiResponse } from "../../utils/ApiResponse";
 import { client } from "../../redis/redis";
+import { createClient } from "redis";
 
 const createOrder = asyncHandler(async (req: Request, res: Response) => {
     if (!req.body) {
@@ -22,21 +23,29 @@ const createOrder = asyncHandler(async (req: Request, res: Response) => {
         const redisInstance = RedisManager.getInstance();
         const dataToBeSentToOrderBook = { ...parsedData.data, orderId, userId: req.user.id, orderType: "create" };
         try {
-            BigInt(dataToBeSentToOrderBook.limit);
+            let limit = BigInt(dataToBeSentToOrderBook.limit);
             BigInt(dataToBeSentToOrderBook.quantity);
-            BigInt(dataToBeSentToOrderBook.price);
+            let price = BigInt(dataToBeSentToOrderBook.price);
+            if (limit < price) {
+                return res.status(400).json(new ApiError(400, INVALIDPRICE, []));
+            }
         } catch (err) {
             return res.status(400).json(new ApiError(400, INVALIDPRICE, []));
 
         }
-        const response = await redisInstance.publishAndWaitForMessage(JSON.stringify(dataToBeSentToOrderBook), orderId);
-        const prevOrders = await client.get("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id);
+        //TODO:: needc to update this section of updating prev orders section keep it after resposnse below
+        const newClient = createClient();
+        await newClient.connect();
+        const prevOrders = await newClient.get("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id);
+        console.log({ prevOrders });
         if (!prevOrders) {
-            await client.set("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id, "1");
+            await newClient.set("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id, "1");
         } else {
             const finalAmount = parseInt(prevOrders) + 1;
-            await client.set("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id, finalAmount.toString());
+            await newClient.set("orderPresent" + dataToBeSentToOrderBook.kind === "buy" ? "token" : "solana" + req.user.id, finalAmount.toString());
         }
+        const response = await redisInstance.publishAndWaitForMessage(JSON.stringify(dataToBeSentToOrderBook), orderId);
+
         return res.status(200).json(new ApiResponse(200, ORDERSUCCESSFUL, JSON.parse(response)));
     } catch (err) {
         console.log({ err });
