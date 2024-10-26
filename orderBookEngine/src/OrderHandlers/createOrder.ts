@@ -269,6 +269,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             createOrderData.userId
         );
         if (orderBook?.asks) {
+            latestAsks.sort((a, b) => Number(BigInt(a.price) - BigInt(b.price)));
             orderBook.asks = latestAsks;
         }
         if (!filledCompletely) {
@@ -532,6 +533,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
         // outside for loop
         await redisManager.client.lPush("dbUpdateBalance", createOrderData.userId);
         if (orderBook?.bids) {
+            latestBids.sort((a, b) => Number(BigInt(b.price) - BigInt(a.price)));
             orderBook.bids = latestBids;
         }
         if (!filledCompletely) {
