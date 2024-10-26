@@ -1,5 +1,6 @@
 import { RedisManager } from "./Managers/RedisManager";
 import { createOrder } from "./OrderHandlers/createOrder";
+import { deleteOrder } from "./OrderHandlers/deleteOrder";
 
 async function main() {
     const redisManager = await RedisManager.getInstance();
@@ -16,19 +17,20 @@ async function main() {
         } else if (orderType == "create") {
             const { orderId, userId, orderType, kind, market, limit, price, quantity } = orderData;
             if (!orderId || !userId || !kind || !market || !limit || !price || !quantity || !orderType) {
+                await redisClient.publish(orderData.orderId, JSON.stringify({ message: "invalid data" }));
                 continue;
             }
-            console.log("create called");
             const res = await createOrder(orderData);
-            console.log({ res });
-            await redisClient.publish(orderData.orderId, "done");
+            await redisClient.publish(orderData.orderId, JSON.stringify(res));
         }
         else if (orderType == "delete") {
-            const { orderId, userId, orderType } = orderData;
-            if (!orderId || !userId || !!orderType) {
+            const { orderId, userId, market, kind } = orderData;
+            if (!orderId || !userId || !market || !kind) {
+                await redisClient.publish(orderData.orderId, JSON.stringify({ message: "invalid data" }));
                 continue;
             }
-            console.log("data deletion called");
+            const res = await deleteOrder(orderData);
+            await redisClient.publish(orderData.orderId, JSON.stringify(res));
         }
     }
 }

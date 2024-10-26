@@ -31,9 +31,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             success: false,
         };
     }
-    console.log("Orderbook has been found");
     if (createOrderData.kind == "buy") {
-        console.log("i have tokens i need solana");
         const redisManager = await RedisManager.getInstance();
         const balanceOfBuyerInToken = await redisManager.client.get(createOrderData.userId + "token");
         const balanceOfBuyerInSolana = await redisManager.client.get(createOrderData.userId + "solana");
@@ -112,7 +110,6 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         currentAsk.userId + "token",
                         newTokenOfAsker.toString()
                     );
-                    /*
                     const prevOrdersOfAskerCount = (await redisManager.client.get(
                         "orderPresent" + "solana" + currentAsk.userId
                     )) as string;
@@ -120,7 +117,6 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         "orderPresent" + "solana" + currentAsk.userId,
                         (parseInt(prevOrdersOfAskerCount) - 1).toString()
                     );
-                    */
                     const prevSolanaOfBidder = (await redisManager.client.get(
                         createOrderData.userId + "solana"
                     )) as string;
@@ -176,14 +172,13 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         currentAsk.userId + "token",
                         newTokenOfAsker.toString()
                     );
-                    /*
                     const prevOrdersOfAskerCount = (await redisManager.client.get(
                         "orderPresent" + "solana" + currentAsk.userId
                     )) as string;
                     await redisManager.client.set(
                         "orderPresent" + "solana" + currentAsk.userId,
                         (parseInt(prevOrdersOfAskerCount) - 1).toString()
-                    );*/
+                    );
                     const prevSolanaOfBidder = (await redisManager.client.get(
                         createOrderData.userId + "solana"
                     )) as string;
@@ -288,14 +283,14 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                     ).toString(),
                 });
             }
-        } else {/*
+        } else {
             const prevOrderNumbers = (await redisManager.client.get(
                 "orderPresent" + "token" + createOrderData.userId
             )) as string;
             await redisManager.client.set(
                 "orderPresent" + "token" + createOrderData.userId,
                 (BigInt(prevOrderNumbers) - BigInt(1)).toString()
-            );*/
+            );
         }
     } else if (createOrderData.kind == "ask") {
         const redisManager = await RedisManager.getInstance();
@@ -398,14 +393,14 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         (
                             BigInt(prevTokensOfBidder) - tokensToRemove
                         ).toString()
-                    );/*
+                    );
                     const prevOrderCountOfAsker = (await redisManager.client.get(
                         "orderPresent" + "token" + currentBid.userId
                     )) as string;
                     await redisManager.client.set(
                         "orderPresent" + "token" + currentBid.userId,
                         (parseInt(prevOrderCountOfAsker) - 1).toString()
-                    );**/
+                    );
                     await redisManager.client.lPush(
                         "dbUpdateBalance",
                         currentBid.userId
@@ -519,14 +514,14 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                                 BigInt(currentBid.quantity) *
                                 BigInt(currentBid.price))
                         ).toString()
-                    );/*
+                    );
                     const prevOrderCountOfAsker = (await redisManager.client.get(
                         "orderPresent" + "token" + currentBid.userId
                     )) as string;
                     await redisManager.client.set(
                         "orderPresent" + "token" + currentBid.userId,
                         (parseInt(prevOrderCountOfAsker) - 1).toString()
-                    );*/
+                    );
                     await redisManager.client.lPush(
                         "dbUpdateBalance",
                         currentBid.userId
@@ -551,20 +546,16 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                     ).toString(),
                 })
             }
-        } else {/*
+        } else {
             const prevOrderNumbers = (await redisManager.client.get(
                 "orderPresent" + "solana" + createOrderData.userId
             )) as string;
             await redisManager.client.set(
                 "orderPresent" + "solana" + createOrderData.userId,
                 (BigInt(prevOrderNumbers) - BigInt(1)).toString()
-            );*/
+            );
         }
     }
-    console.log("asks");
-    console.log(orderBook.asks);
-    console.log("bids");
-    console.log(orderBook.bids);
     return {
         success: true,
         invalidData: false,
