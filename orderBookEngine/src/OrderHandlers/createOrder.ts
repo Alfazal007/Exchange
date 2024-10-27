@@ -3,6 +3,7 @@ import { CreateOrderRequest } from "../interfaces/RequestInterfaces"
 import { CreateOrderResponse } from "../interfaces/ResponseInterfaces"
 import { OrderBooksManager } from "../Managers/OrderBookManager";
 import { RedisManager } from "../Managers/RedisManager";
+import protobuf from "protobufjs";
 
 export async function createOrder(createOrderData: CreateOrderRequest): Promise<CreateOrderResponse> {
     const { market } = createOrderData;
@@ -31,6 +32,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             success: false,
         };
     }
+    let latestTrade = "-1";
     if (createOrderData.kind == "buy") {
         const redisManager = await RedisManager.getInstance();
         const balanceOfBuyerInToken = await redisManager.client.get(createOrderData.userId + "token");
@@ -70,7 +72,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
         const asks = orderBook?.asks as Ask[];
         let filledQuantity = BigInt(0);
         let filledCompletely = false;
-        let latestAsks = [];
+        let latestAsks: Ask[] = [];
         for (let i = 0; i < asks.length; i++) {
             const currentAsk = asks[i];
             if (
@@ -268,6 +270,9 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             "dbUpdateBalance",
             createOrderData.userId
         );
+        if (filledQuantity > 0) {
+            latestTrade = createOrderData.limit;
+        }
         if (orderBook?.asks) {
             latestAsks.sort((a, b) => Number(BigInt(a.price) - BigInt(b.price)));
             orderBook.asks = latestAsks;
@@ -537,6 +542,9 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             latestBids.sort((a, b) => Number(BigInt(b.price) - BigInt(a.price)));
             orderBook.bids = latestBids;
         }
+        if (filledQuantity > 0) {
+            latestTrade = createOrderData.price;
+        }
         if (!filledCompletely) {
             if (orderBook?.asks) {
                 orderBook.asks.push({
@@ -560,6 +568,14 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
             );
         }
     }
+    const protoFile = await protobuf.load('orderbook.proto');
+    const orderBookProtoType = protoFile.lookupType('Orderbook');
+    const orderBookCompressed = orderBookProtoType.encode({
+        asks: orderBook.asks,
+        bids: orderBook.bids,
+        latestTrade
+    }).finish();
+    // TODO:: need to send this information over the queue
     return {
         success: true,
         invalidData: false,

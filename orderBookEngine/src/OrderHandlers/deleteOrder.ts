@@ -2,12 +2,19 @@ import { DeleteOrderRequest } from "../interfaces/RequestInterfaces";
 import { DeleteOrderResponse } from "../interfaces/ResponseInterfaces";
 import { OrderBooksManager } from "../Managers/OrderBookManager";
 import { RedisManager } from "../Managers/RedisManager";
+import protobuf from "protobufjs";
 
 export async function deleteOrder(deleteOrderData: DeleteOrderRequest): Promise<DeleteOrderResponse> {
     const { market, userId, orderId, kind } = deleteOrderData;
     const orderBookManager = OrderBooksManager.getInstance();
     const orderBookMap = orderBookManager.orderBooks;
     const orderBook = orderBookMap.get(market);
+    if (!orderBook) {
+        return {
+            success: false,
+        }
+    }
+
     const redisManager = await RedisManager.getInstance();
     if (kind == "buy") {
         if (orderBook?.bids) {
@@ -48,6 +55,14 @@ export async function deleteOrder(deleteOrderData: DeleteOrderRequest): Promise<
             orderBook.asks = latestAsks;
         }
     }
+    const protoFile = await protobuf.load('orderbook.proto');
+    const orderBookProtoType = protoFile.lookupType('Orderbook');
+    const orderBookCompressed = orderBookProtoType.encode({
+        asks: orderBook.asks,
+        bids: orderBook.bids,
+        latestTrade: "-1"
+    }).finish();
+    // TODO:: need to send this information over the queue
     return {
         success: true
     }

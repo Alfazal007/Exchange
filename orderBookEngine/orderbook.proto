@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+message Ask {
+    string orderId = 1;
+    string userId = 2;
+    string price = 3;
+    string quantity = 4;
+}
+
+message Bid {
+    string orderId = 1;
+    string userId = 2;
+    string price = 3;
+    string quantity = 4;
+}
+
+message Orderbook {
+    repeated Ask asks = 1;
+    repeated Bid bids = 2;
+    string latestTrade = 3;
+}
+
