@@ -2,21 +2,25 @@ import { createClient, RedisClientType } from "redis";
 
 class RedisManager {
     private static instance: RedisManager;
-    private publisher: RedisClientType;
-    private queue: RedisClientType;
+    public publisher: RedisClientType;
+    public client: RedisClientType;
 
     private constructor() {
-        this.queue = createClient();
-        this.queue.connect();
+        this.client = createClient();
         this.publisher = createClient();
-        this.publisher.connect();
     }
 
-    public static getInstance(): RedisManager {
-        if (!this.instance) {
-            this.instance = new RedisManager();
+    static async getInstance(): Promise<RedisManager> {
+        if (!RedisManager.instance) {
+            RedisManager.instance = new RedisManager();
         }
-        return this.instance;
+        if (!RedisManager.instance.publisher.isOpen || !RedisManager.instance.publisher.isReady) {
+            await RedisManager.instance.publisher.connect();
+        }
+        if (!RedisManager.instance.client.isOpen || !RedisManager.instance.client.isReady) {
+            await RedisManager.instance.client.connect();
+        }
+        return RedisManager.instance;
     }
 
     public publishAndWaitForMessage(data: string, idToSubscribe: string) {
@@ -27,16 +31,13 @@ class RedisManager {
                 this.publisher.connect().then(() => { }).catch((err) => { console.log("error with publisger", err) });
             }
             this.publisher.subscribe(idToSubscribe, (message) => {
-                console.log({ message });
                 this.publisher.unsubscribe(idToSubscribe);
                 resolve(message);
             });
-            if (!this.queue.isOpen || !this.queue.isReady) {
-                console.log(this.queue.isOpen);
-                console.log(this.queue.isReady);
-                this.queue.connect().then(() => { }).catch((err) => { console.log("error with publisger", err) });
+            if (!this.client.isOpen || !this.client.isReady) {
+                this.client.connect().then(() => { }).catch((err) => { console.log("error with publisger", err) });
             }
-            this.queue.lPush("orders", data);
+            this.client.lPush("orders", data);
         });
     }
 }

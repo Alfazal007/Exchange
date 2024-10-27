@@ -5,7 +5,6 @@ import { NOREQUESTBODY, ORDERDELETED, ORDERERRORS, ZODERRORS } from "../../const
 import { deleteOrderType } from "../../zodTypes/order.deleteOrderType";
 import { RedisManager } from "../../redis/SubscriberRedis";
 import { ApiResponse } from "../../utils/ApiResponse";
-import { createClient } from "redis";
 
 const deleteOrder = asyncHandler(async (req: Request, res: Response) => {
     if (!req.body) {
@@ -17,9 +16,9 @@ const deleteOrder = asyncHandler(async (req: Request, res: Response) => {
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
     try {
-        const redisInstance = RedisManager.getInstance();
+        const redisManager = await RedisManager.getInstance();
         const dataToBeSentToOrderBook = { userId: req.user.id, orderId: parsedData.data.orderId, market: parsedData.data.market, kind: parsedData.data.kind, orderType: "delete" };
-        const response = await redisInstance.publishAndWaitForMessage(JSON.stringify(dataToBeSentToOrderBook), parsedData.data.orderId);
+        const response = await redisManager.publishAndWaitForMessage(JSON.stringify(dataToBeSentToOrderBook), parsedData.data.orderId);
         return res.status(200).json(new ApiResponse(200, ORDERDELETED, JSON.parse(response)));
     } catch (err) {
         return res.status(400).json(new ApiError(400, ORDERERRORS, []));

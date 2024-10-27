@@ -283,6 +283,7 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         BigInt(filledQuantity)
                     ).toString(),
                 });
+                orderBook.bids.sort((a, b) => Number(BigInt(b.price) - BigInt(a.price)));
             }
         } else {
             const prevOrderNumbers = (await redisManager.client.get(
@@ -546,7 +547,8 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
                         BigInt(createOrderData.quantity) -
                         BigInt(filledQuantity)
                     ).toString(),
-                })
+                });
+                orderBook.asks.sort((a, b) => Number(BigInt(a.price) - BigInt(b.price)));
             }
         } else {
             const prevOrderNumbers = (await redisManager.client.get(

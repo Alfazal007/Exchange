@@ -3,11 +3,11 @@ import { asyncHandler } from "../../utils/AsyncHandler";
 import { ApiError } from "../../utils/ApiErrors";
 import { DATABASEERRORS, NOREQUESTBODY, NOTENOUGHTOKENS, NOTFOUND, OFFRAMPSUCCESS, ORDERPRESENTERROR, SOLANANOTENOUGH, UNAUTHORIZED, ZEROBALANCE, ZODERRORS } from "../../constants/ReturnTypes";
 import { offRampMoneyType } from "../../zodTypes/offRamp.removeMoney";
-import { client } from "../../redis/redis";
 import { db } from "../../db";
 import { UserTokenBalance } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { ApiResponse } from "../../utils/ApiResponse";
+import { RedisManager } from "../../redis/SubscriberRedis";
 
 const offRamp = asyncHandler(async (req: Request, res: Response) => {
     if (!req.body) {
@@ -19,15 +19,14 @@ const offRamp = asyncHandler(async (req: Request, res: Response) => {
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
     try {
-        if (!client.isOpen) {
-            await client.connect();
-        }
-        let isOrderPresentOnToken = await client.get("orderPresent" + parsedData.data.tokenType + req.user.id);
+        const redisManager = await RedisManager.getInstance();
+        const redisClient = redisManager.client;
+        let isOrderPresentOnToken = await redisClient.get("orderPresent" + parsedData.data.tokenType + req.user.id);
         if (isOrderPresentOnToken && isOrderPresentOnToken != "0") {
             return res.status(400).json(new ApiError(400, ORDERPRESENTERROR, []));
         }
-        let userBalance = await client.get(req.user.id + parsedData.data.tokenType);
-        let solanaBalance = await client.get(req.user.id + "solana");
+        let userBalance = await redisClient.get(req.user.id + parsedData.data.tokenType);
+        let solanaBalance = await redisClient.get(req.user.id + "solana");
         if (!userBalance) {
             const userFromTheDatabase = await db.select().from(UserTokenBalance).where(eq(
                 UserTokenBalance.userId, req.user.id
@@ -59,7 +58,7 @@ const offRamp = asyncHandler(async (req: Request, res: Response) => {
             token: parsedData.data.tokenType,
             amount: parsedData.data.lamportsToRetreive
         };
-        await client.lPush("offramp", JSON.stringify(offRampData));
+        await redisClient.lPush("offramp", JSON.stringify(offRampData));
         return res.status(200).json(new ApiResponse(200, OFFRAMPSUCCESS, {}));
     } catch (err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
