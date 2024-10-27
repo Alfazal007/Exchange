@@ -8,13 +8,12 @@ import { AccountTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { ApiResponse } from "../../utils/ApiResponse";
 
-const addPublicKey = asyncHandler(async(req: Request, res: Response) => {
-    console.log(`POST ADDPUBLICKEY ${req.ip}`)
-    if(!req.body) {
+const addPublicKey = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.body) {
         return res.status(500).json(new ApiError(400, NOREQUESTBODY, []));
     }
     const parsedData = publicKeyType.safeParse(req.body);
-    if(!parsedData.success) {
+    if (!parsedData.success) {
         const errors = parsedData.error.errors.map((err) => err.message);
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
@@ -22,8 +21,8 @@ const addPublicKey = asyncHandler(async(req: Request, res: Response) => {
         const isAlreadyPresentData = await db.select().from(AccountTable).where(eq(
             AccountTable.publicKey, parsedData.data.publicKey
         ));
-        if(isAlreadyPresentData.length > 0) {
-            if(!isAlreadyPresentData[0].isVerified) {
+        if (isAlreadyPresentData.length > 0) {
+            if (!isAlreadyPresentData[0].isVerified) {
                 return res.status(400).json(new ApiError(400, PUBLICKEYNOTVERIFIED, []));
             } else {
                 return res.status(400).json(new ApiError(400, PUBLICKEYTAKEN, []))
@@ -35,7 +34,7 @@ const addPublicKey = asyncHandler(async(req: Request, res: Response) => {
             userId: req.user.id
         });
         return res.status(200).json(new ApiResponse(200, PUBLICKEYADDED, {}));
-    } catch(err) {
+    } catch (err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
     }
 });

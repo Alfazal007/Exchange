@@ -10,13 +10,12 @@ import { isPasswordVerified } from "../../helpers/HashPassword";
 import { generateAccessToken } from "../../helpers/AccessToken";
 import { ApiResponse } from "../../utils/ApiResponse";
 
-const loginUser = asyncHandler(async(req: Request, res: Response) => {
-    console.log(`POST LOGIN ${req.ip}`);
-    if(!req.body) {
+const loginUser = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.body) {
         return res.status(400).json(new ApiError(400, NOREQUESTBODY, []));
     }
     const parsedData = loginUserType.safeParse(req.body);
-    if(!parsedData.success) {
+    if (!parsedData.success) {
         const errors = parsedData.error.errors.map((err) => err.message);
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
@@ -25,12 +24,12 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
             eq(UserTable.email, parsedData.data.username),
             eq(UserTable.username, parsedData.data.username),
         ));
-        if(userFromDatabase.length == 0) {
+        if (userFromDatabase.length == 0) {
             return res.status(404).json(new ApiError(404, NOTFOUND, []));
         }
         const userFound = userFromDatabase[0];
         const isValidPassword = await isPasswordVerified(parsedData.data.password, userFound.password);
-        if(!isValidPassword) {
+        if (!isValidPassword) {
             return res.status(400).json(new ApiError(400, INCORRECTPASSWORD, []));
         }
         const accessToken = generateAccessToken({
@@ -44,7 +43,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
                 secure: true
             })
             .json(new ApiResponse(200, LOGINSUCCESSFUL, { accessToken }));
-    } catch(err) {
+    } catch (err) {
         return res.status(400).json(new ApiError(400, DATABASEERRORS, []));
     }
 });

@@ -10,7 +10,6 @@ import { ApiResponse } from "../../utils/ApiResponse";
 import { hashPassword } from "../../helpers/HashPassword";
 
 const createUser = asyncHandler(async (req: Request, res: Response) => {
-    console.log(`POST CREATEUSER ${req.ip}`)
     if (!req.body) {
         return res.status(400).json(new ApiError(400, NOREQUESTBODY, []));
     }

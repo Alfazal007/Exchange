@@ -11,7 +11,6 @@ import { ApiResponse } from "../../utils/ApiResponse";
 import bs58 from "bs58";
 
 const verifyPublicKey = asyncHandler(async (req: Request, res: Response) => {
-    console.log(`PUT VERIFYPUBLICKEY ${req.ip}`)
     if (!req.body) {
         return res.status(400).json(new ApiError(400, NOREQUESTBODY, []));
     }
@@ -31,7 +30,7 @@ const verifyPublicKey = asyncHandler(async (req: Request, res: Response) => {
         }
         if (publicKeyAndUserId[0].isVerified) {
             return res.status(200).json(new ApiResponse(200, ALREADYVERIFIED, []))
-        }/*
+        }
         const message = parsedData.data.publicKey + req.user.id;
         // convert message into uint8array
         const messageWhichWasSigned = new TextEncoder().encode(message);
@@ -42,7 +41,7 @@ const verifyPublicKey = asyncHandler(async (req: Request, res: Response) => {
         const isValid = ed25519.verify(signatureConverted, messageWhichWasSigned, publicKeyOfUser);
         if (!isValid) {
             return res.status(400).json(new ApiError(400, PUBLICKEYVERIFICATIONFAILED, []));
-        }*/
+        }
         await db.update(AccountTable).set({
             isVerified: true
         }).where(and(
