@@ -62,7 +62,17 @@ export async function deleteOrder(deleteOrderData: DeleteOrderRequest): Promise<
         bids: orderBook.bids,
         latestTrade: "-1"
     }).finish();
-    // TODO:: need to send this information over the queue
+    const timeDBData = {
+        orderBook: orderBookCompressed,
+        latestTrade: "-1",
+        time: Date.now().toLocaleString(),
+        type: "delete"
+    }
+    console.log("asks");
+    console.log(orderBook.asks);
+    console.log("bids");
+    console.log(orderBook.bids);
+    await redisManager.client.lPush("timedb", JSON.stringify(timeDBData));
     return {
         success: true
     }

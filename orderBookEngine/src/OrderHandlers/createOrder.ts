@@ -575,7 +575,18 @@ export async function createOrder(createOrderData: CreateOrderRequest): Promise<
         bids: orderBook.bids,
         latestTrade
     }).finish();
-    // TODO:: need to send this information over the queue
+    const redisManager = await RedisManager.getInstance();
+    const timeDBData = {
+        orderBook: orderBookCompressed,
+        latestTrade,
+        time: Date.now().toString(),
+        type: "create"
+    }
+    console.log("asks");
+    console.log(orderBook.asks);
+    console.log("bids");
+    console.log(orderBook.bids);
+    await redisManager.client.lPush("timedb", JSON.stringify(timeDBData));
     return {
         success: true,
         invalidData: false,
