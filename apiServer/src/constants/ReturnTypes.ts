@@ -22,3 +22,5 @@ export const ORDERSUCCESSFUL = "The order was successfully placed";
 export const ORDERDELETED = "The order was successfully deleted";
 export const INVALIDPRICE = "Price, limit, and quantity should be of proper type";
 export const ORDERPRESENTERROR = "Order exists in the database for this token, remove all of it before extracting out the token";
+export const ACCOUNTNOTFOUND = "User has no registered account to trade with";
+export const ACCOUNTNOTVERIFIED = "User account not verified yet";

@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/AsyncHandler";
 import { ApiError } from "../../utils/ApiErrors";
-import { INVALIDPRICE, NOREQUESTBODY, ORDERERRORS, ORDERSUCCESSFUL, ZODERRORS } from "../../constants/ReturnTypes";
+import { ACCOUNTNOTFOUND, ACCOUNTNOTVERIFIED, INVALIDPRICE, NOREQUESTBODY, ORDERERRORS, ORDERSUCCESSFUL, ZODERRORS } from "../../constants/ReturnTypes";
 import { createOrderType } from "../../zodTypes/order.createOrderType";
 import { v4 as uuid } from "uuid";
 import { RedisManager } from "../../redis/SubscriberRedis";
 import { ApiResponse } from "../../utils/ApiResponse";
+import { db } from "../../db";
+import { AccountTable } from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 const createOrder = asyncHandler(async (req: Request, res: Response) => {
     if (!req.body) {
@@ -17,6 +20,13 @@ const createOrder = asyncHandler(async (req: Request, res: Response) => {
         return res.status(400).json(new ApiError(400, ZODERRORS, [], errors));
     }
     try {
+        const userAccount = await db.select().from(AccountTable).where(eq(AccountTable.userId, req.user.id));
+        if (!userAccount || userAccount.length == 0) {
+            return res.status(400).json(new ApiError(400, ACCOUNTNOTFOUND, []));
+        }
+        if (!userAccount[0].isVerified) {
+            return res.status(400).json(new ApiError(400, ACCOUNTNOTVERIFIED, []));
+        }
         const redisManager = await RedisManager.getInstance();
         const redisClient = redisManager.client;
         const orderId = uuid();
