@@ -19,7 +19,7 @@ async function main() {
                 await insertDataToTSDB(new Date(parseInt(dataFromOrderbook.time)), "SOLANA", dataFromOrderbook.latestTrade);
             }
         }
-        // TODO:: send to the websocket layer by queue or something else
+        await redisClient.lPush("websocket", JSON.stringify({ orderBook: dataFromOrderbook.orderBook }));
         console.log("send to the websocket");
     }
 }
